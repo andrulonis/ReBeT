@@ -17,6 +17,7 @@
 #include "lifecycle_msgs/msg/transition.hpp"
 
 #include "rebet_msgs/msg/qr.hpp"
+#include "diagnostic_msgs/msg/key_value.hpp"
 
 namespace BT
 {
@@ -35,6 +36,7 @@ enum class AdaptationTarget : int8_t {
 class AdaptDecoratorBase {
   protected:
     using QR_MSG = rebet_msgs::msg::QR;
+    using KV_MSG = diagnostic_msgs::msg::KeyValue;
     
     AdaptationTarget adaptation_target_;
     std::vector<aal_msgs::msg::AdaptationOptions> _var_params = {};
@@ -51,6 +53,7 @@ class AdaptDecoratorBase {
     rclcpp::Client<aal_msgs::srv::AdaptArchitecture>::SharedPtr internal_adapt_client_;
     std::vector<double> _current_utilities = {};
     std::vector<QR_MSG> _qrs = {};
+    std::vector<KV_MSG> _context = {};
     bool response_received_ = false;
     std::chrono::milliseconds service_timeout_ = std::chrono::milliseconds(ADAP_SERVICE_TIMEOUT_MILLISECOND);
     rclcpp::Time time_request_sent_;
@@ -95,6 +98,11 @@ class AdaptDecoratorBase {
       return std::vector<QR_MSG>();
     }
 
+    virtual std::vector<KV_MSG> collect_context()
+    {
+      return std::vector<KV_MSG>();
+    }
+
     template <typename AdaptationService, typename AdaptationRequest>
     void sendAdaptationRequest(const std::string& service_name,
     const std::string& strategy_name,
@@ -110,7 +118,10 @@ class AdaptDecoratorBase {
         request->task_identifier = registration_name;
         request->adaptation_strategy = strategy_name;
         request->utility_previous = _current_utilities;
+        _qrs = collect_qrs();
         request->qrs = _qrs;
+        _context = collect_context();
+        request->context = _context;
         external_future_response_ = client->async_send_request(request).share();
       }
       else if constexpr (std::is_same_v<AdaptationService, aal_msgs::srv::AdaptArchitecture>)
@@ -159,12 +170,10 @@ class AdaptDecoratorBase {
             {
               std:: cout << "filling utilities" << std::endl;
               _current_utilities = {};
-              _qrs = {};
               for (auto const & adaptation : external_response_->applied_adaptations){
                 double evaluation = evaluate_adaptation(adaptation);
                 _current_utilities.push_back(evaluation);
               }
-              _qrs = collect_qrs();
 
               std:: cout << "filling utilities " << _current_utilities[0] << std::endl;
 
