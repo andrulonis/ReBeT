@@ -63,7 +63,6 @@ class AdaptDecoratorBase {
     static constexpr const char* ADAP_SUB = "adaptation_subject";
     static constexpr const char* ADAP_LOC = "subject_location";
 
-
     double evaluate_adaptation(aal_msgs::msg::Adaptation given_adaptation)
     {
       switch(given_adaptation.adaptation_target)
@@ -101,6 +100,10 @@ class AdaptDecoratorBase {
     virtual std::vector<KV_MSG> collect_context()
     {
       return std::vector<KV_MSG>();
+    }
+
+    virtual void set_outputs(aal_msgs::msg::Adaptation /*given_adaptation*/) {
+      return;
     }
 
     template <typename AdaptationService, typename AdaptationRequest>
@@ -172,6 +175,7 @@ class AdaptDecoratorBase {
               _current_utilities = {};
               for (auto const & adaptation : external_response_->applied_adaptations){
                 double evaluation = evaluate_adaptation(adaptation);
+                set_outputs(adaptation);
                 _current_utilities.push_back(evaluation);
               }
 
