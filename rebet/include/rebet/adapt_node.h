@@ -54,6 +54,7 @@ class AdaptDecoratorBase {
     std::vector<double> _current_utilities = {};
     std::vector<QR_MSG> _qrs = {};
     std::vector<KV_MSG> _context = {};
+    std::vector<KV_MSG> _config = {};
     bool response_received_ = false;
     std::chrono::milliseconds service_timeout_ = std::chrono::milliseconds(ADAP_SERVICE_TIMEOUT_MILLISECOND);
     rclcpp::Time time_request_sent_;
@@ -97,6 +98,11 @@ class AdaptDecoratorBase {
       return std::vector<QR_MSG>();
     }
 
+    virtual std::vector<KV_MSG> collect_config()
+    {
+      return std::vector<KV_MSG>();
+    }
+
     virtual std::vector<KV_MSG> collect_context()
     {
       return std::vector<KV_MSG>();
@@ -123,6 +129,8 @@ class AdaptDecoratorBase {
         request->utility_previous = _current_utilities;
         _qrs = collect_qrs();
         request->qrs = _qrs;
+        _config = collect_config();
+        request->config = _config;
         _context = collect_context();
         request->context = _context;
         external_future_response_ = client->async_send_request(request).share();
