@@ -12,6 +12,9 @@
 #include <std_msgs/msg/string.hpp>
 #include <std_msgs/msg/bool.hpp>
 #include "rebet_msgs/msg/qr.hpp"
+#include "rebet_msgs/msg/objects_identified.hpp"
+
+using ObjectsIdentified = rebet_msgs::msg::ObjectsIdentified;
 
 namespace nlohmann {
 
@@ -317,6 +320,38 @@ struct adl_serializer<std::vector<rebet_msgs::msg::QR>> {
     }
 };
 
+template <>
+struct adl_serializer<ObjectsIdentified> {
+    static void to_json(nlohmann::json& j, const ObjectsIdentified& obj_id) {
+        j = {
+            {"model", obj_id.model_used}
+        };
+    }
+
+    static void from_json(const nlohmann::json& j, ObjectsIdentified& obj_id) {
+    }
+};
+
+template <>
+struct adl_serializer<std::vector<ObjectsIdentified>> {
+    static void to_json(nlohmann::json& j, const std::vector<ObjectsIdentified>& obj_ids) {
+        int v8n_used = 0;
+        int v8x_used = 0;
+        for (const auto& obj_id : obj_ids) {
+            if (obj_id.model_used == "yolov8n") v8n_used++;
+            if (obj_id.model_used == "yolov8x") v8x_used++;
+        }
+
+        j= {
+            {"yolov8n_uses", v8n_used},
+            {"yolov8x_uses", v8x_used}
+        };
+    }
+
+    static void from_json(const nlohmann::json& j, std::vector<ObjectsIdentified>& obj_ids) {
+    }
+};
+
 }
 
 struct SerializerRegistration {
@@ -334,6 +369,8 @@ struct SerializerRegistration {
         BT::RegisterJsonDefinition<rebet::SystemAttributeValue>();
         BT::RegisterJsonDefinition<rebet_msgs::msg::QR>();
         BT::RegisterJsonDefinition<std::vector<rebet_msgs::msg::QR>>();
+        BT::RegisterJsonDefinition<ObjectsIdentified>();
+        BT::RegisterJsonDefinition<std::vector<ObjectsIdentified>>();
     }
 };
 
