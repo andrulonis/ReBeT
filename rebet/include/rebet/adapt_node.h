@@ -61,6 +61,7 @@ class AdaptDecoratorBase {
 
     static constexpr const char* ADAP_OPT = "adaptation_options";
     static constexpr const char* ADAP_STRAT = "adaptation_strategy";
+    static constexpr const char* MODEL_DIR = "model_dir";
     static constexpr const char* ADAP_SUB = "adaptation_subject";
     static constexpr const char* ADAP_LOC = "subject_location";
 
@@ -115,6 +116,7 @@ class AdaptDecoratorBase {
     template <typename AdaptationService, typename AdaptationRequest>
     void sendAdaptationRequest(const std::string& service_name,
     const std::string& strategy_name,
+    const std::string& model_dir,
     typename rclcpp::Client<AdaptationService>::SharedPtr& client,
     const std::string& registration_name)
     {
@@ -126,6 +128,7 @@ class AdaptDecoratorBase {
         request->adaptation_space = _var_params;
         request->task_identifier = registration_name;
         request->adaptation_strategy = strategy_name;
+        request->model_dir = model_dir;
         request->utility_previous = _current_utilities;
         _qrs = collect_qrs();
         request->qrs = _qrs;
@@ -235,6 +238,7 @@ public:
     {
         PortsList ports = {
                            InputPort<std::string>(ADAP_STRAT, "Which strategy should be employed to decide on adaptations"),
+                           InputPort<std::string>(MODEL_DIR, "Which directory to use for external models (e.g. with PRISM)"),
                            InputPort<std::string>(ADAP_SUB, "The name of the thing you adapt"),
                            InputPort<std::string>(ADAP_LOC, "Where the thing you adapt is located"),
                            InputPort<std::vector<ParamT>>(ADAP_OPT, "List of things to adapt with")
@@ -369,16 +373,19 @@ class AdaptOnConditionOnStart : public AdaptOnCondition<ParamT>, public virtual 
         std::string strategy_name;
         this->getInput(ADAP_STRAT,strategy_name);
 
+        std::string model_dir;
+        this->getInput(MODEL_DIR,model_dir);
+
         if(adaptation_type_ == AdaptationType::External)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitectureExternal, aal_msgs::srv::AdaptArchitectureExternal::Request>(
-            "/adapt_architecture_external", strategy_name, external_adapt_client_, this->registrationName());
+            "/adapt_architecture_external", strategy_name, model_dir, external_adapt_client_, this->registrationName());
             
         }
         else if(adaptation_type_ == AdaptationType::Internal)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitecture, aal_msgs::srv::AdaptArchitecture::Request>(
-            "/adapt_architecture", strategy_name, internal_adapt_client_, this->registrationName());
+            "/adapt_architecture", strategy_name, model_dir, internal_adapt_client_, this->registrationName());
         }
         time_request_sent_ = node_->now();
       }
@@ -554,6 +561,9 @@ class AdaptOnConditionOnRunning : public AdaptOnCondition<ParamT>, public virtua
 
       std::string strategy_name;
       this->getInput(ADAP_STRAT,strategy_name);
+
+      std::string model_dir;
+      this->getInput(MODEL_DIR,model_dir);
       
       // auto request = std::make_shared<aal_msgs::srv::RequestAdaptation::Request>();
 
@@ -570,13 +580,13 @@ class AdaptOnConditionOnRunning : public AdaptOnCondition<ParamT>, public virtua
         if(adaptation_type_ == AdaptationType::External)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitectureExternal, aal_msgs::srv::AdaptArchitectureExternal::Request>(
-            "/adapt_architecture_external", strategy_name, external_adapt_client_, this->registrationName());
+            "/adapt_architecture_external", strategy_name, model_dir, external_adapt_client_, this->registrationName());
             
         }
         else if(adaptation_type_ == AdaptationType::Internal)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitecture, aal_msgs::srv::AdaptArchitecture::Request>(
-            "/adapt_architecture", strategy_name, internal_adapt_client_, this->registrationName());
+            "/adapt_architecture", strategy_name, model_dir, internal_adapt_client_, this->registrationName());
         }
       time_request_sent_ = node_->now();
       
@@ -739,16 +749,19 @@ class AdaptOnConditionOnSuccess : public AdaptOnCondition<ParamT>, public virtua
           std::string strategy_name;
           this->getInput(ADAP_STRAT,strategy_name);
 
+          std::string model_dir;
+          this->getInput(MODEL_DIR,model_dir);
+
         if(adaptation_type_ == AdaptationType::External)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitectureExternal, aal_msgs::srv::AdaptArchitectureExternal::Request>(
-            "/adapt_architecture_external", strategy_name, external_adapt_client_, this->registrationName());
+            "/adapt_architecture_external", strategy_name, model_dir, external_adapt_client_, this->registrationName());
             
         }
         else if(adaptation_type_ == AdaptationType::Internal)
         {
           sendAdaptationRequest<aal_msgs::srv::AdaptArchitecture, aal_msgs::srv::AdaptArchitecture::Request>(
-            "/adapt_architecture", strategy_name, internal_adapt_client_, this->registrationName());
+            "/adapt_architecture", strategy_name, model_dir, internal_adapt_client_, this->registrationName());
         }
           time_request_sent_ = node_->now();
           request_sent_ = true;
@@ -917,16 +930,19 @@ class AdaptOnConditionOnFailure : public AdaptOnCondition<ParamT>, public virtua
           std::string strategy_name;
           this->getInput(ADAP_STRAT,strategy_name);
 
+          std::string model_dir;
+          this->getInput(MODEL_DIR,model_dir);
+
           if(adaptation_type_ == AdaptationType::External)
           {
             sendAdaptationRequest<aal_msgs::srv::AdaptArchitectureExternal, aal_msgs::srv::AdaptArchitectureExternal::Request>(
-              "/adapt_architecture_external", strategy_name, external_adapt_client_, this->registrationName());
+              "/adapt_architecture_external", strategy_name, model_dir, external_adapt_client_, this->registrationName());
               
           }
           else if(adaptation_type_ == AdaptationType::Internal)
           {
             sendAdaptationRequest<aal_msgs::srv::AdaptArchitecture, aal_msgs::srv::AdaptArchitecture::Request>(
-              "/adapt_architecture", strategy_name, internal_adapt_client_, this->registrationName());
+              "/adapt_architecture", strategy_name, model_dir, internal_adapt_client_, this->registrationName());
           }
           time_request_sent_ = node_->now();
           request_sent_ = true;
