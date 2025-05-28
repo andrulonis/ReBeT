@@ -1036,8 +1036,9 @@ class AdaptOnConditionOnFailure : public AdaptOnCondition<ParamT>, public virtua
 template <class ParamT>
 class AdaptPeriodicallyOnRunning : public AdaptOnConditionOnRunning<ParamT>, public virtual AdaptDecoratorBase
 {
-  static constexpr const char* WINDOW_LEN = "adaptation_period";
   public:
+    static constexpr const char* WINDOW_LEN = "adaptation_period";
+    
     AdaptPeriodicallyOnRunning(const std::string& name, const NodeConfig& config, const AdaptationTarget& adaptation_target, AdaptationType adaptation_type) : AdaptOnConditionOnRunning<ParamT>(name, config, adaptation_target, adaptation_type)
     { 
       std::cout << "\n\n\n\nSomeone created me a AdaptPeriodicallyOnRunning node!!!!\n\n\n\n\n" << std::endl;
@@ -1073,10 +1074,10 @@ class AdaptPeriodicallyOnRunning : public AdaptOnConditionOnRunning<ParamT>, pub
       }
       return window_expired;
     }
-
-    private:
-      int _window_length;
-      int _window_start;
+    
+    int _window_length;
+    int _window_start;
+    
 };
 
 }   // namespace BT

@@ -321,18 +321,6 @@ struct adl_serializer<std::vector<rebet_msgs::msg::QR>> {
 };
 
 template <>
-struct adl_serializer<ObjectsIdentified> {
-    static void to_json(nlohmann::json& j, const ObjectsIdentified& obj_id) {
-        j = {
-            {"model", obj_id.model_used}
-        };
-    }
-
-    static void from_json(const nlohmann::json& j, ObjectsIdentified& obj_id) {
-    }
-};
-
-template <>
 struct adl_serializer<std::vector<ObjectsIdentified>> {
     static void to_json(nlohmann::json& j, const std::vector<ObjectsIdentified>& obj_ids) {
         int v8n_used = 0;
@@ -369,7 +357,6 @@ struct SerializerRegistration {
         BT::RegisterJsonDefinition<rebet::SystemAttributeValue>();
         BT::RegisterJsonDefinition<rebet_msgs::msg::QR>();
         BT::RegisterJsonDefinition<std::vector<rebet_msgs::msg::QR>>();
-        BT::RegisterJsonDefinition<ObjectsIdentified>();
         BT::RegisterJsonDefinition<std::vector<ObjectsIdentified>>();
     }
 };
