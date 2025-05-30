@@ -11,6 +11,7 @@
 #include <chrono>
 #include <ctime> 
 #include "rebet/system_attribute_value.hpp"
+#include "rebet/rebet_utilities.hpp"
 #include "aal_msgs/msg/adaptation.hpp"
 #include "aal_msgs/msg/adaptation_options.hpp"
 #include "rcl_interfaces/msg/parameter_value.hpp"
