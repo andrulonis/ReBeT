@@ -194,16 +194,16 @@ protected:
     {
       for (auto & node : sbtree->nodes) 
       {
-        std::cout << "Node is ?" << node->name() << node->status() << std::endl;
+        // std::cout << "Node is ?" << node->name() << node->status() << std::endl;
 
         if(auto qr_node = dynamic_cast<QR_TYPE*>(static_cast<TreeNode*>(node.get())))
         {
-          std::cout << "QR node" << std::endl;
+          // std::cout << "QR node" << std::endl;
 
           qr_nodes.push_back(qr_node);
         }
         else{
-          std::cout << "Not QR" << std::endl;
+          // std::cout << "Not QR" << std::endl;
 
 
         }
