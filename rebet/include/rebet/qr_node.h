@@ -68,11 +68,14 @@ private:
   virtual NodeStatus tick() override
   {
     setStatus(NodeStatus::RUNNING);
+    // claculate measure before running child
+    calculate_measure();
     const NodeStatus child_status = child_node_->executeTick();
 
     switch (child_status)
     {
       case NodeStatus::SUCCESS: {
+        calculate_measure(); // calculate one last time
         resetChild();
         return NodeStatus::SUCCESS;
       }
@@ -83,7 +86,6 @@ private:
       }
 
       case NodeStatus::RUNNING: {
-        calculate_measure();
         return NodeStatus::RUNNING;
       }
 
