@@ -68,7 +68,7 @@ private:
   virtual NodeStatus tick() override
   {
     setStatus(NodeStatus::RUNNING);
-    // claculate measure before running child
+    // calculate measure before running child
     calculate_measure();
     const NodeStatus child_status = child_node_->executeTick();
 
